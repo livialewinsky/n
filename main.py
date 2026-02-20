@@ -57,20 +57,20 @@ def kombinatorik():
   if u:
    n=int(input("n: "));k=int(input("k: "))
    if n<0 or k<0:return print("Fel.")
-   return print(f"Lösning: {n}^{k} = {n**k}")
+   return print("Lösning:",str(n)+"^"+str(k),"=",n**k)
   n=int(input("n: "));k=int(input("k: "))
   if n<0 or k<0 or k>n:return print("Fel.")
   r=fac(n)//fac(n-k)
-  return print(f"nPr: {n}! / {n-k}! = {r}")
+  return print("nPr:",str(n)+"! / "+str(n-k)+"! =",r)
  if u:
   n=int(input("n: "));k=int(input("k: "))
   if n<=0 or k<0:return print("Fel.")
   N=n+k-1;r=nCr(N,k)
-  return print(f"nCr: {N}! / ({k}! * {N-k}!) = {r}")
+  return print("nCr:",str(N)+"! / ("+str(k)+"! * "+str(N-k)+"!) =",r)
  n=int(input("n: "));k=int(input("k: "))
  r=nCr(n,k)
  if r is None:return print("Fel.")
- print(f"nCr: {n}! / ({k}! * {n-k}!) = {r}")
+ print("nCr:",str(n)+"! / ("+str(k)+"! * "+str(n-k)+"!) =",r)
 
 def meny():
  while 1:
