@@ -67,16 +67,24 @@ def dir():
   elif v=="7":return
   else:print("Ogiltigt val.")
 
+def h():
+ print("Tips 1=ja,2=nej")
+ print("ordning: kod/kö->1, val av lag->2")
+ print("alla: alla objekt används->1")
+ print("upprepning: samma kan väljas igen->1")
+ print("identiska: lika tecken/personer->1")
+
 def kombinatorik():
  print("\n--- Kombinatorik ---")
  if j("Direkt formel? (t.ex. P(9,2)/C(7,3))"):
   dir();return
  if j("Är det val i flera olika steg? (t.ex. tårta/kläder/meny)"):
   multi();return
- o=j("Viktig ordning? (t.ex. kod/plats/kö)")
- a=j("Ska ALLA användas? (t.ex. kasta om bokstäver)")
- u=j("Upprepning? (t.ex. 1-1-1/tärning)")
- i=j('Finns identiska objekt? (t.ex. bokstäver i "mamma")')
+ h()
+ o=j("Viktig ordning? (t.ex. kod/plats/kö, annars 2)")
+ a=j("Ska ALLA användas? (t.ex. kasta om bokstäver, annars 2)")
+ u=j("Upprepning? (t.ex. 1-1-1/tärning, annars 2)")
+ i=j('Finns identiska objekt? (t.ex. bokstäver i "mamma", annars 2)')
  if i and a:
   n=int(input("n: "));g=int(input("Grupper: "))
   if n<0 or g<=0:return print("Fel.")
