@@ -205,82 +205,15 @@ def ladprincip():
     print("Minsta antal objekt i minst en låda =", svar)
 
 
-def mangdlara():
-    print("\n--- Mängdlära ---")
-    print("1. Union av två mängder")
-    print("2. Union av tre mängder")
-    print("3. Antal delmängder")
-    print("4. Antal äkta delmängder")
-    print("5. Antal k-delmängder")
-    print("6. Kartesisk produkt")
-
-    val = input("Välj 1-6: ").strip()
-
-    if val == "1":
-        a = int(input("Ange |A|: "))
-        b = int(input("Ange |B|: "))
-        ab = int(input("Ange |A ∩ B|: "))
-        svar = a + b - ab
-        print("|A ∪ B| =", svar)
-        return
-
-    if val == "2":
-        a = int(input("Ange |A|: "))
-        b = int(input("Ange |B|: "))
-        c = int(input("Ange |C|: "))
-        ab = int(input("Ange |A ∩ B|: "))
-        ac = int(input("Ange |A ∩ C|: "))
-        bc = int(input("Ange |B ∩ C|: "))
-        abc = int(input("Ange |A ∩ B ∩ C|: "))
-        svar = a + b + c - ab - ac - bc + abc
-        print("|A ∪ B ∪ C| =", svar)
-        return
-
-    if val == "3":
-        n = int(input("Ange n (antal element): "))
-        if n < 0:
-            print("Fel: n måste vara >= 0.")
-            return
-        print("Antal delmängder = 2^n =", 2 ** n)
-        return
-
-    if val == "4":
-        n = int(input("Ange n (antal element): "))
-        if n < 0:
-            print("Fel: n måste vara >= 0.")
-            return
-        print("Antal äkta delmängder = 2^n - 1 =", (2 ** n) - 1)
-        return
-
-    if val == "5":
-        n = int(input("Ange n: "))
-        k = int(input("Ange k: "))
-        svar = nCr(n, k)
-        if svar is None:
-            print("Fel: kräver 0 <= k <= n och n >= 0.")
-            return
-        print("Antal k-delmängder = nCk =", svar)
-        return
-
-    if val == "6":
-        a = int(input("Ange |A|: "))
-        b = int(input("Ange |B|: "))
-        print("|A × B| =", a * b)
-        return
-
-    print("Ogiltigt val.")
-
-
 def huvudmeny():
     while True:
         print("\n=== Matematiskt expertsystem ===")
         print("1. Kombinatorik (automatisk formelidentifiering)")
         print("2. Binomialsatsen")
         print("3. Lådprincipen")
-        print("4. Mängdlära")
-        print("5. Avsluta")
+        print("4. Avsluta")
 
-        val = input("Välj 1-5: ").strip()
+        val = input("Välj 1-4: ").strip()
 
         if val == "1":
             kombinatorik()
@@ -289,8 +222,6 @@ def huvudmeny():
         elif val == "3":
             ladprincip()
         elif val == "4":
-            mangdlara()
-        elif val == "5":
             print("Avslutar programmet.")
             break
         else:
