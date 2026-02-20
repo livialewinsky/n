@@ -19,14 +19,14 @@ def nCr(n,k):
  return t//d
 
 def multi():
- m=int(input("Antal steg: "))
+ m=int(input("Steg: "))
  if m<=0:return print("Fel.")
- p=1
+ p=1;a=[]
  for i in range(1,m+1):
-  v=int(input("Val i steg "+str(i)+": "))
+  v=int(input("Val "+str(i)+": "))
   if v<0:return print("Fel.")
-  p*=v
- print("Svar =",p)
+  p*=v;a.append(str(v))
+ print("Lösning:"," * ".join(a),"=",p)
 
 def kombinatorik():
  print("\n--- Kombinatorik ---")
@@ -35,38 +35,42 @@ def kombinatorik():
  o=j("Viktig ordning? (t.ex. kod/plats/kö)")
  a=j("Ska ALLA användas? (t.ex. kasta om bokstäver)")
  u=j("Upprepning? (t.ex. 1-1-1/tärning)")
- i=j("Finns identiska objekt? (t.ex. bokstäver i \"mamma\")")
- print("\nIdentifierad modell:")
+ i=j('Finns identiska objekt? (t.ex. bokstäver i "mamma")')
  if i and a:
-  n=int(input("n: "));g=int(input("Antal grupper: "))
+  n=int(input("n: "));g=int(input("Grupper: "))
   if n<0 or g<=0:return print("Fel.")
-  s=0;d=1
+  s=0;d=1;t=[]
   for x in range(1,g+1):
-   v=int(input("Grupp "+str(x)+": "))
+   v=int(input("g"+str(x)+": "))
    if v<0:return print("Fel.")
-   s+=v;d*=fac(v)
-  if s!=n:return print("Fel: summan måste vara n.")
-  return print("Svar =",fac(n)//d)
+   s+=v;d*=fac(v);t.append(str(v)+"!")
+  if s!=n:return print("Fel: summa!=n")
+  r=fac(n)//d
+  print("n!=",n,"!=",fac(n))
+  print(str(n)+"!/("," * ".join(t),") =",r)
+  return
  if o:
   if a and not u:
    n=int(input("n: "))
    if n<0:return print("Fel.")
-   return print("n! =",fac(n))
+   return print("n!=",n,"!=",fac(n))
   if u:
    n=int(input("n: "));k=int(input("k: "))
    if n<0 or k<0:return print("Fel.")
-   return print("n^k =",n**k)
+   return print(f"Lösning: {n}^{k} = {n**k}")
   n=int(input("n: "));k=int(input("k: "))
   if n<0 or k<0 or k>n:return print("Fel.")
-  return print("nPr =",fac(n)//fac(n-k))
+  r=fac(n)//fac(n-k)
+  return print(f"nPr: {n}! / {n-k}! = {r}")
  if u:
   n=int(input("n: "));k=int(input("k: "))
   if n<=0 or k<0:return print("Fel.")
-  return print("(n+k-1)Ck =",nCr(n+k-1,k))
+  N=n+k-1;r=nCr(N,k)
+  return print(f"nCr: {N}! / ({k}! * {N-k}!) = {r}")
  n=int(input("n: "));k=int(input("k: "))
  r=nCr(n,k)
  if r is None:return print("Fel.")
- print("nCr =",r)
+ print(f"nCr: {n}! / ({k}! * {n-k}!) = {r}")
 
 def meny():
  while 1:
