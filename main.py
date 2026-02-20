@@ -14,22 +14,33 @@ def fac(n):
 def nCr(n,k):
  if n<0 or k<0 or k>n:return None
  if k>n-k:k=n-k
- t=nmr=1
- for i in range(1,k+1):
-  t*=n-k+i;nmr*=i
- return t//nmr
+ t=d=1
+ for i in range(1,k+1):t*=n-k+i;d*=i
+ return t//d
 
-def komb():
+def multi():
+ m=int(input("Antal steg: "))
+ if m<=0:return print("Fel.")
+ p=1
+ for i in range(1,m+1):
+  v=int(input("Val i steg "+str(i)+": "))
+  if v<0:return print("Fel.")
+  p*=v
+ print("Svar =",p)
+
+def kombinatorik():
  print("\n--- Kombinatorik ---")
+ if j("Är det val i flera olika steg? (t.ex. tårta/kläder/meny)"):
+  multi();return
  o=j("Viktig ordning? (t.ex. kod/plats/kö)")
- a=j("Ska ALLA användas? (t.ex. kasta om alla bokstäver)")
- u=j("Upprepning tillåten? (t.ex. 1-1-1/tärning)")
+ a=j("Ska ALLA användas? (t.ex. kasta om bokstäver)")
+ u=j("Upprepning? (t.ex. 1-1-1/tärning)")
  i=j("Finns identiska objekt? (t.ex. bokstäver i \"mamma\")")
  print("\nIdentifierad modell:")
  if i and a:
   n=int(input("n: "));g=int(input("Antal grupper: "))
   if n<0 or g<=0:return print("Fel.")
-  s=d=0;d=1
+  s=0;d=1
   for x in range(1,g+1):
    v=int(input("Grupp "+str(x)+": "))
    if v<0:return print("Fel.")
@@ -63,10 +74,8 @@ def meny():
   print("1. Kombinatorik")
   print("2. Avsluta")
   v=input("Välj 1-2: ").strip()
-  if v=="1":komb()
-  elif v=="2":
-   print("Avslutar programmet.")
-   break
+  if v=="1":kombinatorik()
+  elif v=="2":print("Avslutar programmet.");break
   else:print("Ogiltigt val.")
 
 meny()
