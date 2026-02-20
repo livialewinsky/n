@@ -1,4 +1,4 @@
-# Matematiskt expertsystem för kombinatorik och närliggande områden
+# Matematiskt expertsystem för kombinatorik
 # Anpassat för TI-84 Plus CE-T Python Edition
 
 
@@ -26,7 +26,6 @@ def factorial(n):
 def nCr(n, k):
     if n < 0 or k < 0 or k > n:
         return None
-    # Symmetri för färre multiplikationer
     if k > n - k:
         k = n - k
     taljare = 1
@@ -41,7 +40,7 @@ def nCr(n, k):
 
 def kombinatorik():
     print("\n--- Kombinatorik: automatisk formelidentifiering ---")
-    arrangemang = ja_nej("Är det ett räkneproblem om arrangemang (snarare än val)")
+    ja_nej("Är det ett räkneproblem om arrangemang eller val")
     ordning = ja_nej("Spelar ordningen roll")
     alla_objekt = ja_nej("Används alla objekt")
     identiska = ja_nej("Finns identiska objekt")
@@ -67,8 +66,7 @@ def kombinatorik():
                 print("Fel: gruppstorlek kan inte vara negativ.")
                 return
             summa += ni
-            f = factorial(ni)
-            namnare *= f
+            namnare *= factorial(ni)
             i += 1
 
         if summa != n:
@@ -86,8 +84,7 @@ def kombinatorik():
             if n < 0:
                 print("Fel: n måste vara >= 0.")
                 return
-            svar = factorial(n)
-            print("Svar = n! =", svar)
+            print("Svar = n! =", factorial(n))
             return
 
         if upprepning:
@@ -97,8 +94,7 @@ def kombinatorik():
             if n < 0 or k < 0:
                 print("Fel: n och k måste vara >= 0.")
                 return
-            svar = n ** k
-            print("Svar = n^k =", svar)
+            print("Svar = n^k =", n ** k)
             return
 
         print("Permutation (k av n, utan upprepning)")
@@ -107,121 +103,40 @@ def kombinatorik():
         if n < 0 or k < 0 or k > n:
             print("Fel: kräver 0 <= k <= n.")
             return
-        svar = factorial(n) // factorial(n - k)
-        print("Svar = n!/(n-k)! =", svar)
+        print("Svar = n!/(n-k)! =", factorial(n) // factorial(n - k))
         return
 
-    else:
-        if upprepning:
-            print("Kombination med upprepning")
-            n = int(input("Ange n: "))
-            k = int(input("Ange k: "))
-            if n <= 0 or k < 0:
-                print("Fel: kräver n > 0 och k >= 0.")
-                return
-            svar = nCr(n + k - 1, k)
-            print("Svar = (n+k-1)Ck =", svar)
-            return
-
-        print("Kombination utan upprepning")
+    if upprepning:
+        print("Kombination med upprepning")
         n = int(input("Ange n: "))
         k = int(input("Ange k: "))
-        svar = nCr(n, k)
-        if svar is None:
-            print("Fel: kräver 0 <= k <= n.")
+        if n <= 0 or k < 0:
+            print("Fel: kräver n > 0 och k >= 0.")
             return
-        print("Svar = nCk =", svar)
+        print("Svar = (n+k-1)Ck =", nCr(n + k - 1, k))
         return
 
-    # Om frågorna skulle ge en ovanlig kombination
-    if arrangemang:
-        print("Ingen standardformel kunde avgöras med givna svar.")
-    else:
-        print("Ingen standardformel kunde avgöras med givna svar.")
-
-
-def binomial():
-    print("\n--- Binomialsatsen ---")
-    print("1. Utveckla hela (a+b)^n")
-    print("2. Beräkna en specifik term")
-    print("3. Beräkna endast binomialkoefficienten nCk")
-
-    val = input("Välj 1-3: ").strip()
-
-    if val == "1":
-        a = int(input("Ange a: "))
-        b = int(input("Ange b: "))
-        n = int(input("Ange n: "))
-        if n < 0:
-            print("Fel: n måste vara >= 0.")
-            return
-
-        print("Termer i utvecklingen av (a+b)^n:")
-        k = 0
-        while k <= n:
-            koeff = nCr(n, k)
-            term = koeff * (a ** (n - k)) * (b ** k)
-            print("k=", k, ":", koeff, "*", a, "^", (n - k), "*", b, "^", k, "=", term)
-            k += 1
+    print("Kombination utan upprepning")
+    n = int(input("Ange n: "))
+    k = int(input("Ange k: "))
+    svar = nCr(n, k)
+    if svar is None:
+        print("Fel: kräver 0 <= k <= n.")
         return
-
-    if val == "2":
-        a = int(input("Ange a: "))
-        b = int(input("Ange b: "))
-        n = int(input("Ange n: "))
-        k = int(input("Ange k för termen: "))
-        koeff = nCr(n, k)
-        if koeff is None:
-            print("Fel: kräver 0 <= k <= n och n >= 0.")
-            return
-        term = koeff * (a ** (n - k)) * (b ** k)
-        print("Specifik term = nCk * a^(n-k) * b^k =", term)
-        return
-
-    if val == "3":
-        n = int(input("Ange n: "))
-        k = int(input("Ange k: "))
-        svar = nCr(n, k)
-        if svar is None:
-            print("Fel: kräver 0 <= k <= n och n >= 0.")
-            return
-        print("Binomialkoefficient nCk =", svar)
-        return
-
-    print("Ogiltigt val.")
-
-
-def ladprincip():
-    print("\n--- Lådprincipen ---")
-    n = int(input("Hur många objekt? "))
-    k = int(input("Hur många lådor? "))
-
-    if n < 0 or k <= 0:
-        print("Fel: objekt >= 0 och lådor > 0 krävs.")
-        return
-
-    # ceil(n/k) utan math-modul
-    svar = (n + k - 1) // k
-    print("Minsta antal objekt i minst en låda =", svar)
+    print("Svar = nCk =", svar)
 
 
 def huvudmeny():
     while True:
         print("\n=== Matematiskt expertsystem ===")
         print("1. Kombinatorik (automatisk formelidentifiering)")
-        print("2. Binomialsatsen")
-        print("3. Lådprincipen")
-        print("4. Avsluta")
+        print("2. Avsluta")
 
-        val = input("Välj 1-4: ").strip()
+        val = input("Välj 1-2: ").strip()
 
         if val == "1":
             kombinatorik()
         elif val == "2":
-            binomial()
-        elif val == "3":
-            ladprincip()
-        elif val == "4":
             print("Avslutar programmet.")
             break
         else:
