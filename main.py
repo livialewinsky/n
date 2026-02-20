@@ -4,12 +4,12 @@
 
 def ja_nej(fraga):
     while True:
-        svar = input(fraga + " (ja/nej): ").strip().lower()
-        if svar == "ja":
+        svar = input(fraga + " (1=ja, 2=nej): ").strip()
+        if svar == "1":
             return True
-        if svar == "nej":
+        if svar == "2":
             return False
-        print("Skriv 'ja' eller 'nej'.")
+        print("Skriv 1 för ja eller 2 för nej.")
 
 
 def factorial(n):
