@@ -6,7 +6,6 @@ import math
 
 def bygg_funktion(expr):
     """Skapar en funktion f(x) från en textsträng."""
-    # Vanliga inmatningar i gymnasiematte
     expr = expr.strip()
     if "=" in expr:
         expr = expr.split("=", 1)[1].strip()
@@ -40,14 +39,47 @@ def numerisk_derivata(f, a, h=1e-5):
     return (f(a + h) - f(a - h)) / (2 * h)
 
 
+def las_funktion(prompt):
+    expr_in = input(prompt).strip()
+    if expr_in == "":
+        print("Fel: Du måste skriva en funktion, t.ex. x^3-x eller y=x^3-x.")
+        return None, None, None
+    try:
+        f, expr = bygg_funktion(expr_in)
+        _ = f(1.0)  # snabb kontroll att uttrycket går att tolka
+        return expr_in, f, expr
+    except Exception:
+        print("Fel i funktionsinmatningen.")
+        print("Tips: använd X,T,θ,n-knappen för x och skriv t.ex. 2*x, inte 2x.")
+        print("Exempel på giltig inmatning: y=x^3-x")
+        return None, None, None
+
+
+def las_punkt():
+    raw = input("punkten (x) = ").strip().replace(",", ".")
+    try:
+        return float(raw)
+    except Exception:
+        print("Fel: punkten måste vara ett tal, t.ex. -1 eller 2.5")
+        return None
+
+
 def skriv_tangent():
     print("\n--- Bestäm ekvationen till tangenten ---")
-    expr_in = input("y = ")
-    a = float(input("punkten (x) = "))
+    expr_in, f, expr = las_funktion("y = ")
+    if f is None:
+        return
 
-    f, expr = bygg_funktion(expr_in)
-    fa = f(a)
-    m = numerisk_derivata(f, a)
+    a = las_punkt()
+    if a is None:
+        return
+
+    try:
+        fa = f(a)
+        m = numerisk_derivata(f, a)
+    except Exception:
+        print("Fel: funktionen kunde inte beräknas i den punkten.")
+        return
 
     print("\nFull beräkning:")
     print("f(x) =", expr_in)
@@ -58,7 +90,6 @@ def skriv_tangent():
     print("Tangentformel: y - f(a) = f'(a)(x - a)")
     print("y - ({0}) = ({1})(x - ({2}))".format(fa, m, a))
 
-    # k-form
     k = m
     m0 = fa - k * a
     print("\nSvar:")
@@ -68,12 +99,20 @@ def skriv_tangent():
 
 def skriv_linjar_approx():
     print("\n--- Bestäm linjär approximation ---")
-    expr_in = input("f(x) = ")
-    a = float(input("punkten (x) = "))
+    expr_in, f, expr = las_funktion("f(x) = ")
+    if f is None:
+        return
 
-    f, expr = bygg_funktion(expr_in)
-    fa = f(a)
-    fpa = numerisk_derivata(f, a)
+    a = las_punkt()
+    if a is None:
+        return
+
+    try:
+        fa = f(a)
+        fpa = numerisk_derivata(f, a)
+    except Exception:
+        print("Fel: funktionen kunde inte beräknas i den punkten.")
+        return
 
     print("\nFull beräkning:")
     print("f(x) =", expr)
