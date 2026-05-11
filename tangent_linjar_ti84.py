@@ -1,5 +1,5 @@
 # Program för TI-84 Plus CE-T Python Edition
-# Beräknar tangentekvation och linjär approximation.
+# Beräknar tangentekvation, linjär approximation och Maclaurinpolynom.
 
 import math
 
@@ -7,8 +7,15 @@ import math
 def normalisera_uttryck(expr):
     """Normaliserar vanlig TI-inmatning till Python-uttryck."""
     expr = expr.replace(" ", "")
-    # Acceptera både x och X från olika TI-inmatningslägen
     expr = expr.replace("X", "x")
+
+    # Vanliga genvägar: cosx, sinx, tanx, lnx, logx, sqrtx
+    expr = expr.replace("cosx", "cos(x)")
+    expr = expr.replace("sinx", "sin(x)")
+    expr = expr.replace("tanx", "tan(x)")
+    expr = expr.replace("lnx", "ln(x)")
+    expr = expr.replace("logx", "log(x)")
+    expr = expr.replace("sqrtx", "sqrt(x)")
 
     ut = ""
     prev = ""
@@ -28,7 +35,6 @@ def normalisera_uttryck(expr):
 
 
 def bygg_funktion(expr):
-    """Skapar en funktion f(x) från en textsträng."""
     expr = expr.strip()
     if "=" in expr:
         expr = expr.split("=", 1)[1].strip()
@@ -48,7 +54,6 @@ def bygg_funktion(expr):
             "atan": math.atan,
             "sqrt": math.sqrt,
             "ln": math.log,
-            # TI-Python kan sakna math.log10, använd basbytesformel
             "log": lambda v: math.log(v) / math.log(10),
             "exp": math.exp,
             "abs": abs,
@@ -59,8 +64,26 @@ def bygg_funktion(expr):
 
 
 def numerisk_derivata(f, a, h=1e-5):
-    """Central differens: f'(a) ≈ (f(a+h)-f(a-h))/(2h)."""
     return (f(a + h) - f(a - h)) / (2 * h)
+
+
+def nte_derivata_i_0(f, n, h=1e-4):
+    if n == 0:
+        return f(0.0)
+
+    def g(x):
+        return (f(x + h) - f(x - h)) / (2 * h)
+
+    return nte_derivata_i_0(g, n - 1, h)
+
+
+def fakultet(n):
+    r = 1
+    i = 2
+    while i <= n:
+        r *= i
+        i += 1
+    return r
 
 
 def las_funktion(prompt):
@@ -75,7 +98,7 @@ def las_funktion(prompt):
     except Exception:
         print("Fel i funktionsinmatningen.")
         print("Tips: använd X,T,θ,n-knappen för x och skriv t.ex. 2*x, inte 2x.")
-        print("Exempel på giltig inmatning: y=x^3-x")
+        print("Exempel: y=x^3-x, cos(x), e^-x")
         return None, None, None
 
 
@@ -93,11 +116,9 @@ def skriv_tangent():
     expr_in, f, _expr = las_funktion("y = ")
     if f is None:
         return
-
     a = las_punkt()
     if a is None:
         return
-
     try:
         fa = f(a)
         m = numerisk_derivata(f, a)
@@ -111,26 +132,22 @@ def skriv_tangent():
     print("f(a) = f({0}) = {1}".format(a, fa))
     print("f'(a) ≈ [f(a+h)-f(a-h)]/(2h), h=1e-5")
     print("f'({0}) ≈ {1}".format(a, m))
-    print("Tangentformel: y - f(a) = f'(a)(x - a)")
+    print("y - f(a) = f'(a)(x - a)")
     print("y - ({0}) = ({1})(x - ({2}))".format(fa, m, a))
 
     k = m
     m0 = fa - k * a
-    print("\nSvar:")
-    print("Tangentens ekvation:")
-    print("y = {0}x + ({1})".format(k, m0))
+    print("\nSvar: y = {0}x + ({1})".format(k, m0))
 
 
 def skriv_linjar_approx():
     print("\n--- Bestäm linjär approximation ---")
-    expr_in, f, expr = las_funktion("f(x) = ")
+    _expr_in, f, expr = las_funktion("f(x) = ")
     if f is None:
         return
-
     a = las_punkt()
     if a is None:
         return
-
     try:
         fa = f(a)
         fpa = numerisk_derivata(f, a)
@@ -142,32 +159,68 @@ def skriv_linjar_approx():
     print("f(x) =", expr)
     print("a =", a)
     print("f(a) =", fa)
-    print("f'(a) ≈ [f(a+h)-f(a-h)]/(2h), h=1e-5")
     print("f'({0}) ≈ {1}".format(a, fpa))
-    print("Linjär approximation:")
     print("L(x) = f(a) + f'(a)(x-a)")
     print("L(x) = ({0}) + ({1})(x-({2}))".format(fa, fpa, a))
 
     k = fpa
     m0 = fa - k * a
+    print("\nSvar: L(x) = {0}x + ({1})".format(k, m0))
+
+
+def skriv_maclaurin():
+    print("\n--- Maclaurinpolynom ---")
+    _expr_in, f, expr = las_funktion("f(x) = ")
+    if f is None:
+        return
+
+    try:
+        n = int(input("grad n = ").strip())
+    except Exception:
+        print("Fel: graden måste vara ett heltal.")
+        return
+    if n < 0:
+        print("Fel: graden måste vara 0 eller större.")
+        return
+
+    print("\nFull beräkning (kring x=0):")
+    print("p_n(x) = Σ (f^(k)(0)/k!) x^k, k=0..n")
+
+    termer = []
+    k = 0
+    while k <= n:
+        dk = nte_derivata_i_0(f, k)
+        ak = dk / fakultet(k)
+        print("k={0}: f^({0})(0) ≈ {1},  a_{0} = f^({0})(0)/{0}! ≈ {2}".format(k, dk, ak))
+        if k == 0:
+            termer.append("({0})".format(ak))
+        elif k == 1:
+            termer.append("({0})*x".format(ak))
+        else:
+            termer.append("({0})*x^{1}".format(ak, k))
+        k += 1
+
     print("\nSvar:")
-    print("L(x) = {0}x + ({1})".format(k, m0))
+    print("p_{0}(x) ≈ ".format(n) + " + ".join(termer))
 
 
 def meny():
     print("====================================")
-    print(" Tangent & Linjär approximation")
+    print(" Tangent / Linjär approx / Maclaurin")
     print(" TI-84 Plus CE-T Python Edition")
     print("====================================")
     print("1. Bestäm ekvationen till tangenten")
     print("2. Bestäm linjär approximation")
+    print("3. Maclaurinpolynom")
 
-    val = input("Välj 1 eller 2: ").strip()
+    val = input("Välj 1, 2 eller 3: ").strip()
 
     if val == "1":
         skriv_tangent()
     elif val == "2":
         skriv_linjar_approx()
+    elif val == "3":
+        skriv_maclaurin()
     else:
         print("Ogiltigt val. Starta programmet igen.")
 
