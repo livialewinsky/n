@@ -7,6 +7,8 @@ import math
 def normalisera_uttryck(expr):
     """Normaliserar vanlig TI-inmatning till Python-uttryck."""
     expr = expr.replace(" ", "")
+    # Acceptera både x och X från olika TI-inmatningslägen
+    expr = expr.replace("X", "x")
 
     ut = ""
     prev = ""
