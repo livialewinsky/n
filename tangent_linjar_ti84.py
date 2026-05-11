@@ -67,16 +67,31 @@ def numerisk_derivata(f, a, h=1e-5):
     return (f(a + h) - f(a - h)) / (2 * h)
 
 
+def binomial(n, k):
+    if k < 0 or k > n:
+        return 0
+    if k > n - k:
+        k = n - k
+    r = 1
+    i = 1
+    while i <= k:
+        r = r * (n - k + i) // i
+        i += 1
+    return r
+
+
 def nte_derivata_i_0(f, n, h=1e-4):
+    """Framåtdifferens för n:te derivatan i 0 (minnessnål, ingen rekursion)."""
     if n == 0:
         return f(0.0)
 
-    def g(x):
-        return (f(x + h) - f(x - h)) / (2 * h)
-
-    return nte_derivata_i_0(g, n - 1, h)
-
-
+    summa = 0.0
+    j = 0
+    while j <= n:
+        tecken = -1 if ((n - j) % 2 == 1) else 1
+        summa += tecken * binomial(n, j) * f(j * h)
+        j += 1
+    return summa / (h ** n)
 def fakultet(n):
     r = 1
     i = 2
@@ -181,6 +196,9 @@ def skriv_maclaurin():
         return
     if n < 0:
         print("Fel: graden måste vara 0 eller större.")
+        return
+    if n > 4:
+        print("För TI-minne/stabilitet: välj grad högst 4.")
         return
 
     print("\nFull beräkning (kring x=0):")
