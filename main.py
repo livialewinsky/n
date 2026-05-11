@@ -1,15 +1,22 @@
-"""TI-84 Plus CE-T Python Edition: en-fils MVP (meny + formulär + matemotor + stegmotor)."""
+"""TI-84 one-file MVP: menu + polynomial derivative/tangent.
+ASCII-only and TI-friendly fallback I/O.
+"""
 
-# ======== MODELLER ========
-def new_func(family, params, label="f(x)"):
-    return {"f": family, "p": params, "m": {"l": label}}
+# ---------- Helpers ----------
+def safe_print(msg=""):
+    try:
+        print(msg)
+    except Exception:
+        pass
 
 
-def new_problem(topic, subtopic, func, inputs):
-    return {"t": topic, "s": subtopic, "fn": func, "in": inputs}
+def safe_input(prompt):
+    # TI Python app may behave differently than desktop Python.
+    # Keep prompts short and numeric.
+    return input(prompt)
 
 
-# ======== STEGMOTOR ========
+# ---------- Step engine ----------
 def new_solution(summary):
     return {"sum": summary, "steps": [], "final": None}
 
@@ -29,19 +36,20 @@ def set_final(sol, final):
 
 
 def show_solution(sol):
-    print("\n---", sol["sum"], "---")
+    safe_print("")
+    safe_print("--- " + str(sol["sum"]) + " ---")
     for s in sol["steps"]:
-        print("Steg", s["id"], ":", s["title"])
+        safe_print("Step " + str(s["id"]) + ": " + str(s["title"]))
         if s.get("expr"):
-            print(" ", s["expr"])
+            safe_print(" " + str(s["expr"]))
         if s.get("calc"):
-            print(" ", s["calc"])
+            safe_print(" " + str(s["calc"]))
         if s.get("result") is not None:
-            print(" Resultat:", s["result"])
-    print("Slut:", sol["final"])
+            safe_print(" Result: " + str(s["result"]))
+    safe_print("Final: " + str(sol["final"]))
 
 
-# ======== POLYNOM ========
+# ---------- Polynomial math ----------
 def eval_poly(coeffs, x):
     y = 0.0
     for c in coeffs:
@@ -54,16 +62,17 @@ def derive_poly(coeffs):
     if n <= 0:
         return [0.0]
     out = []
-    for i, c in enumerate(coeffs[:-1]):
-        out.append(c * (n - i))
+    i = 0
+    while i < n:
+        out.append(coeffs[i] * (n - i))
+        i += 1
     return out
 
 
-# ======== DERIVATA/TANGENT-MOTOR ========
 def derive_polynomial(coeffs):
-    sol = new_solution("Derivera polynom")
+    sol = new_solution("Derivative of polynomial")
     d = derive_poly(coeffs)
-    add_step(sol, "Använd derivataregel", expr="(a_n*x^n)' = n*a_n*x^(n-1)", calc="f'(x)-koeff = " + str(d))
+    add_step(sol, "Apply power rule", expr="(a_n*x^n)' = n*a_n*x^(n-1)", calc="f'(x) coeffs = " + str(d))
     set_final(sol, {"d_coeffs": d})
     return d, sol
 
@@ -73,72 +82,91 @@ def tangent_at(coeffs, x0):
     m = eval_poly(d, x0)
     y0 = eval_poly(coeffs, x0)
     b = y0 - m * x0
-    sol = new_solution("Tangent i punkt")
-    add_step(sol, "Beräkna derivatan", calc="d_coeffs = " + str(d))
-    add_step(sol, "Beräkna lutning", calc="m = f'(" + str(x0) + ") = " + str(m))
-    add_step(sol, "Beräkna punktvärde", calc="y0 = f(" + str(x0) + ") = " + str(y0))
-    add_step(sol, "Bygg tangent", expr="y = m*x + b", calc="b = y0 - m*x0 = " + str(b))
+    sol = new_solution("Tangent at point")
+    add_step(sol, "Derivative coeffs", calc="d = " + str(d))
+    add_step(sol, "Slope", calc="m = f'(" + str(x0) + ") = " + str(m))
+    add_step(sol, "Point value", calc="y0 = f(" + str(x0) + ") = " + str(y0))
+    add_step(sol, "Line", expr="y = m*x + b", calc="b = " + str(b))
     set_final(sol, {"m": m, "b": b, "line": "y=" + str(m) + "*x+" + str(b)})
     return (m, b), sol
 
 
-# ======== FORMULÄR ========
+# ---------- Forms ----------
 def ask_float(prompt):
-    return float(input(prompt + ": "))
+    while True:
+        try:
+            return float(safe_input(prompt + ": "))
+        except Exception:
+            safe_print("Invalid number")
 
 
 def ask_int(prompt, min_val=None):
     while True:
-        v = int(input(prompt + ": "))
-        if min_val is None or v >= min_val:
-            return v
-        print("För lågt värde")
+        try:
+            v = int(safe_input(prompt + ": "))
+            if min_val is None or v >= min_val:
+                return v
+            safe_print("Too small")
+        except Exception:
+            safe_print("Invalid integer")
 
 
 def ask_poly_coeffs():
-    deg = ask_int("Grad", 0)
+    deg = ask_int("Degree", 0)
     coeffs = []
     p = deg
     while p >= 0:
-        coeffs.append(ask_float("Koefficient för x^" + str(p)))
+        coeffs.append(ask_float("Coeff x^" + str(p)))
         p -= 1
     return coeffs
 
 
-# ======== MENYER ========
+# ---------- Menus ----------
 def run_derivative_menu():
-    print("\n1 Derivera polynom")
-    print("2 Tangent i punkt")
-    print("3 Tillbaka")
-    c = input("Val: ").strip()
+    safe_print("")
+    safe_print("1 Derive polynomial")
+    safe_print("2 Tangent at x0")
+    safe_print("3 Back")
+    c = safe_input("Choice: ").strip()
 
     if c == "1":
         coeffs = ask_poly_coeffs()
         _, sol = derive_polynomial(coeffs)
         show_solution(sol)
+        safe_input("Enter=continue")
     elif c == "2":
         coeffs = ask_poly_coeffs()
         x0 = ask_float("x0")
         _, sol = tangent_at(coeffs, x0)
         show_solution(sol)
+        safe_input("Enter=continue")
 
 
 def run_main_menu():
     while True:
-        print("\n=== TI-84 Matteexpertsystem (MVP) ===")
-        print("1 Derivata/Tangent")
-        print("2 Avsluta")
-        c = input("Val: ").strip()
+        safe_print("")
+        safe_print("TI-84 Math Expert MVP")
+        safe_print("1 Derivative/Tangent")
+        safe_print("2 Exit")
+        c = safe_input("Choice: ").strip()
         if c == "1":
             run_derivative_menu()
         elif c == "2":
-            print("Avslutar...")
+            safe_print("Bye")
             break
 
 
 def main():
+    safe_print("Starting...")
     run_main_menu()
 
 
-if __name__ == "__main__":
+# On TI Python app, execute immediately when opened.
+try:
     main()
+except Exception as e:
+    safe_print("ERROR: " + str(e))
+    try:
+        safe_input("Enter")
+    except Exception:
+        pass
