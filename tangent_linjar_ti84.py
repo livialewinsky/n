@@ -25,7 +25,8 @@ def bygg_funktion(expr):
             "atan": math.atan,
             "sqrt": math.sqrt,
             "ln": math.log,
-            "log": math.log10,
+            # TI-Python kan sakna math.log10, använd basbytesformel
+            "log": lambda v: math.log(v) / math.log(10),
             "exp": math.exp,
             "abs": abs,
         }
