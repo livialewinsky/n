@@ -84,6 +84,11 @@ def deriv0(f, n, h=1e-3):
     return s / (h ** n)
 
 
+
+
+def fmt(v, d=4):
+    return str(round(v, d))
+
 def main():
     print("Maclaurinpolynom (TI-84)")
     ex = input("f(x) = ").strip()
@@ -109,21 +114,27 @@ def main():
 
     print("\nFull beräkning:")
     terms = []
+    formel_terms = []
     k = 0
     while k <= n:
         d = deriv0(f, k)
         a = d / fak(k)
-        print("k=", k, " f^k(0)≈", d, " a_k≈", a)
+        print("k=", k, " f^k(0)≈", fmt(d), " a_k≈", fmt(a))
         if k == 0:
-            terms.append("(" + str(a) + ")")
+            terms.append("(" + fmt(a) + ")")
+            formel_terms.append("f(0)")
         elif k == 1:
-            terms.append("(" + str(a) + ")*x")
+            terms.append("(" + fmt(a) + ")*x")
+            formel_terms.append("f'(0)x")
         else:
-            terms.append("(" + str(a) + ")*x^" + str(k))
+            terms.append("(" + fmt(a) + ")*x^" + str(k))
+            formel_terms.append("f^(" + str(k) + ")(0)/" + str(k) + "!*x^" + str(k))
         k += 1
 
-    print("\nSvar:")
+    print("\nSvar (avrundat):")
     print("p_" + str(n) + "(x) ≈ " + " + ".join(terms))
+    print("Alternativ formel:")
+    print("p(x) = " + " + ".join(formel_terms))
 
 
 main()
