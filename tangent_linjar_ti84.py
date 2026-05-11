@@ -2,19 +2,29 @@
 # Beräknar tangentekvation och linjär approximation.
 
 import math
-import re
 
 
 def normalisera_uttryck(expr):
     """Normaliserar vanlig TI-inmatning till Python-uttryck."""
     expr = expr.replace(" ", "")
-    # implicit multiplikation: 2x -> 2*x, 2(x+1) -> 2*(x+1), (x+1)(x-1) -> (x+1)*(x-1)
-    expr = re.sub(r"(\d)(x)", r"\1*\2", expr)
-    expr = re.sub(r"(\d)(\()", r"\1*\2", expr)
-    expr = re.sub(r"(\))(x)", r"\1*\2", expr)
-    expr = re.sub(r"(\))(\d)", r"\1*\2", expr)
-    expr = re.sub(r"(\))(\()", r"\1*\2", expr)
-    return expr
+
+    ut = ""
+    prev = ""
+    for ch in expr:
+        if prev != "":
+            implicit = False
+            if prev.isdigit() and (ch == "x" or ch == "("):
+                implicit = True
+            elif prev == ")" and (ch == "x" or ch == "(" or ch.isdigit()):
+                implicit = True
+            if implicit:
+                ut += "*"
+        ut += ch
+        prev = ch
+
+    return ut
+
+
 def bygg_funktion(expr):
     """Skapar en funktion f(x) från en textsträng."""
     expr = expr.strip()
@@ -58,7 +68,7 @@ def las_funktion(prompt):
         return None, None, None
     try:
         f, expr = bygg_funktion(expr_in)
-        _ = f(1.0)  # snabb kontroll att uttrycket går att tolka
+        _ = f(1.0)
         return expr_in, f, expr
     except Exception:
         print("Fel i funktionsinmatningen.")
@@ -78,7 +88,7 @@ def las_punkt():
 
 def skriv_tangent():
     print("\n--- Bestäm ekvationen till tangenten ---")
-    expr_in, f, expr = las_funktion("y = ")
+    expr_in, f, _expr = las_funktion("y = ")
     if f is None:
         return
 
