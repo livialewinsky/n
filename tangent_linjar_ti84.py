@@ -2,13 +2,25 @@
 # Beräknar tangentekvation och linjär approximation.
 
 import math
+import re
 
 
+def normalisera_uttryck(expr):
+    """Normaliserar vanlig TI-inmatning till Python-uttryck."""
+    expr = expr.replace(" ", "")
+    # implicit multiplikation: 2x -> 2*x, 2(x+1) -> 2*(x+1), (x+1)(x-1) -> (x+1)*(x-1)
+    expr = re.sub(r"(\d)(x)", r"\1*\2", expr)
+    expr = re.sub(r"(\d)(\()", r"\1*\2", expr)
+    expr = re.sub(r"(\))(x)", r"\1*\2", expr)
+    expr = re.sub(r"(\))(\d)", r"\1*\2", expr)
+    expr = re.sub(r"(\))(\()", r"\1*\2", expr)
+    return expr
 def bygg_funktion(expr):
     """Skapar en funktion f(x) från en textsträng."""
     expr = expr.strip()
     if "=" in expr:
         expr = expr.split("=", 1)[1].strip()
+    expr = normalisera_uttryck(expr)
     expr = expr.replace("^", "**")
 
     def f(x):
