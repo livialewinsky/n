@@ -47,7 +47,7 @@ def bygg_f(expr):
         }
         return eval(expr, {"__builtins__": {}}, env)
 
-    return f
+    return f, expr
 
 
 def fak(n):
@@ -84,10 +84,50 @@ def deriv0(f, n, h=1e-3):
     return s / (h ** n)
 
 
+def snygg(v, d=4):
+    if abs(v) < 1e-3:
+        return "0"
+    if abs(v - 1) < 1e-3:
+        return "1"
+    if abs(v + 1) < 1e-3:
+        return "-1"
+    r = round(v, d)
+    if abs(r - round(r)) < 10 ** (-d):
+        return str(int(round(r)))
+    return str(r)
 
 
-def fmt(v, d=4):
-    return str(round(v, d))
+def derivata_rad(expr, k, val):
+    """Extra tydlig rad för några vanliga funktioner."""
+    if expr == "cos(x)":
+        m = k % 4
+        if m == 0:
+            return "f^({0})(0)=cos(0)={1}".format(k, snygg(val))
+        if m == 1:
+            return "f^({0})(0)=-sin(0)={1}".format(k, snygg(val))
+        if m == 2:
+            return "f^({0})(0)=-cos(0)={1}".format(k, snygg(val))
+        return "f^({0})(0)=sin(0)={1}".format(k, snygg(val))
+
+    if expr == "sin(x)":
+        m = k % 4
+        if m == 0:
+            return "f^({0})(0)=sin(0)={1}".format(k, snygg(val))
+        if m == 1:
+            return "f^({0})(0)=cos(0)={1}".format(k, snygg(val))
+        if m == 2:
+            return "f^({0})(0)=-sin(0)={1}".format(k, snygg(val))
+        return "f^({0})(0)=-cos(0)={1}".format(k, snygg(val))
+
+    if expr == "exp(-x)" or expr == "e**-x" or expr == "e**(-x)":
+        tecken = "" if (k % 2 == 0) else "-"
+        return "f^({0})(0)={1}e^-0={2}".format(k, tecken, snygg(val))
+
+    if expr == "exp(x)" or expr == "e**x":
+        return "f^({0})(0)=e^0={1}".format(k, snygg(val))
+
+    return "f^({0})(0)≈{1}".format(k, snygg(val))
+
 
 def main():
     print("Maclaurinpolynom (TI-84)")
@@ -96,7 +136,7 @@ def main():
         print("Fel: tom funktion")
         return
     try:
-        f = bygg_f(ex)
+        f, expr_norm = bygg_f(ex)
         _ = f(0.0)
     except Exception:
         print("Fel i funktionen. Exempel: cos(x), e^-x, exp(-x)")
@@ -119,15 +159,16 @@ def main():
     while k <= n:
         d = deriv0(f, k)
         a = d / fak(k)
-        print("k=", k, " f^k(0)≈", fmt(d), " a_k≈", fmt(a))
+        print(derivata_rad(expr_norm, k, d))
+        print("a_{0}=f^({0})(0)/{0}!= {1}".format(k, snygg(a)))
         if k == 0:
-            terms.append("(" + fmt(a) + ")")
+            terms.append("(" + snygg(a) + ")")
             formel_terms.append("f(0)")
         elif k == 1:
-            terms.append("(" + fmt(a) + ")*x")
+            terms.append("(" + snygg(a) + ")*x")
             formel_terms.append("f'(0)x")
         else:
-            terms.append("(" + fmt(a) + ")*x^" + str(k))
+            terms.append("(" + snygg(a) + ")*x^" + str(k))
             formel_terms.append("f^(" + str(k) + ")(0)/" + str(k) + "!*x^" + str(k))
         k += 1
 
