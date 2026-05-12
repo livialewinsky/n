@@ -80,16 +80,73 @@ def skriv_lista(rader):
         i += 1
 
 
+
+
+def hamta_g_for_if(vl, hl):
+    # Forvantad form: yp + g(x)*y = h(x)
+    sida = None
+    if "yp" in vl:
+        sida = vl
+    elif "yp" in hl:
+        sida = hl
+    else:
+        return None
+
+    expr = sida.replace("yp", "")
+    expr = expr.replace("-", "+-")
+    delar = [d for d in expr.split("+") if d != ""]
+
+    for d in delar:
+        if "y" in d:
+            g = d.replace("*y", "").replace("y*", "").replace("y", "")
+            g = g.replace("(", "").replace(")", "")
+            if g == "" or g == "+":
+                g = "1"
+            if g == "-":
+                g = "-1"
+            return g
+    return None
+
+
+def integral_enkel(g):
+    g = g.strip()
+    if g == "x":
+        return "x^2/2"
+    if g == "-x":
+        return "-x^2/2"
+    if g == "1/x":
+        return "ln|x|"
+    if g == "2*x":
+        return "x^2"
+    if g == "3*x**2" or g == "3*x^2":
+        return "x^3"
+    return "∫(" + g + ")dx"
+
 def main():
     print("Separerbara differentialekvationer")
     print("Skriv y' som yp")
     print("1. Separera variabler")
     print("2. Bestam allman losning")
     print("3. Los med begynnelsevillkor y(0)=...")
+    print("4. Ange integrerande faktor (I.F.)")
 
-    val = input("Val 1/2/3: ").strip()
+    val = input("Val 1/2/3/4: ").strip()
     vl = norm(input("VL = ").strip())
     hl = norm(input("HL = ").strip())
+
+    if val == "4":
+        g = hamta_g_for_if(vl, hl)
+        if g is None:
+            print("Kunde inte identifiera g(x) i formen yp + g(x)*y = h(x).")
+            return
+        G = integral_enkel(g)
+        print("Steg for integrerande faktor:")
+        print("1) Skriv om pa formen yp + g(x)*y = h(x)")
+        print("2) g(x) =", g)
+        print("3) G(x) = ∫g(x)dx =", G)
+        print("4) I.F. = e^(G(x))")
+        print("5) I.F. = e^(" + G + ")")
+        return
 
     rhs = isolera_yp(vl, hl)
     if rhs is None:
