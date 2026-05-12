@@ -54,7 +54,7 @@ def r4(v):
 
 def main():
     print("Newton-Raphsons metod (TI-84)")
-    print("Löser ekvationer på formen f(x)=0")
+    print("Loser ekvationer på formen f(x)=0")
     print("Formel: x_(n+1) = x_n - f(x_n)/f'(x_n)")
 
     expr_in = input("Skriv vänsterledet i f(x)=0 (t.ex. x^3-x^2-3): ").strip()
@@ -104,9 +104,9 @@ def main():
         print("Iteration", n + 1)
         print("x_n =", r4(x))
         print("f(x_n) =", r4(fx))
-        print("f'(x_n) ≈", r4(dfx))
+        print("f'(x_n) ~", r4(dfx))
         print("x_(n+1) = x_n - f(x_n)/f'(x_n)")
-        print("x_(n+1) ≈", r4(x_next))
+        print("x_(n+1) ~", r4(x_next))
         print("---")
 
         if abs(x_next - x) < tol:
@@ -116,7 +116,7 @@ def main():
         n += 1
 
     print("Svar:")
-    print("x ≈", format(x, ".3f"), "(tre korrekta decimaler)")
+    print("x ~", round(x, 3), "(tre korrekta decimaler)")
 
 
 main()
