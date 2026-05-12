@@ -1,5 +1,5 @@
 # TI-84 Plus CE-T Python Edition
-# Separerbara differentialekvationer
+# Separerbara differentialekvationer - visar hela losningen steg for steg
 
 
 def norm(s):
@@ -10,75 +10,84 @@ def norm(s):
 
 
 def isolera_yp(vl, hl):
-    # Enkel isolering för vanliga former
     if vl == "yp":
         return hl
     if hl == "yp":
         return vl
-
     if "yp" in vl:
-        faktor = vl.replace("*yp", "").replace("yp*", "").replace("yp", "")
-        if faktor == "":
-            faktor = "1"
+        faktor = vl.replace("*yp", "").replace("yp*", "").replace("yp", "") or "1"
         return "(" + hl + ")/(" + faktor + ")"
-
     if "yp" in hl:
-        faktor = hl.replace("*yp", "").replace("yp*", "").replace("yp", "")
-        if faktor == "":
-            faktor = "1"
+        faktor = hl.replace("*yp", "").replace("yp*", "").replace("yp", "") or "1"
         return "(" + vl + ")/(" + faktor + ")"
-
     return None
 
 
-def analys_separabel(rhs):
-    # Regelbaserad analys för vanliga skoluppgifter
+def mall(rhs):
     r = rhs
-
-    if r == "x/y" or r == "x*(1/y)" or r == "x/y":
-        return True, "y dy = x dx", "y^2 = x^2 + C", "y = ±sqrt(x^2 + C)", None
-
-    if "x**2*y**2" in r or "x**2*(y**2)" in r:
-        return True, "(1/y^2) dy = x^2 dx", "-1/y = x^3/3 + C", "y = -1/(x^3/3 + C)", None
-
+    if r == "x/y":
+        return {
+            "sep": ["yp = x/y", "dy/dx = x/y", "y dy = x dx"],
+            "allm": ["∫ y dy = ∫ x dx", "y^2/2 = x^2/2 + C", "y^2 = x^2 + C", "y = ±sqrt(x^2 + C)"],
+            "tag": "xy"
+        }
     if "-3*x**2*y" in r or "(-3*x**2)*y" in r:
-        return True, "(1/y) dy = -3x^2 dx", "ln|y| = -x^3 + C", "y = C*e^(-x^3)", None
-
-    if "1/(x*y-y)" in r or "1/(y*(x-1))" in r or "1/((x-1)*y)" in r:
-        return True, "y dy = (1/(x-1)) dx", "y^2/2 = ln|x-1| + C", "y = ±sqrt(2ln|x-1| + C)", None
-
-    if "exp(x-y)" in r or "e**(x-y)" in r:
-        return True, "e^y dy = e^x dx", "e^y = e^x + C", "y = ln(e^x + C)", None
-
+        return {
+            "sep": ["yp = -3x^2*y", "dy/dx = -3x^2*y", "(1/y)dy = -3x^2 dx"],
+            "allm": ["∫(1/y)dy = ∫-3x^2 dx", "ln|y| = -x^3 + C", "y = C*e^(-x^3)"],
+            "tag": "expneg"
+        }
     if "x/(y**4)" in r or "x/y**4" in r:
-        return True, "y^4 dy = x dx", "y^5/5 = x^2/2 + C", "y = (5x^2/2 + C)^(1/5)", "pow5"
-
+        return {
+            "sep": ["yp = x/y^4", "dy/dx = x/y^4", "y^4 dy = x dx"],
+            "allm": ["∫ y^4 dy = ∫ x dx", "y^5/5 = x^2/2 + C", "y = (5x^2/2 + C)^(1/5)"],
+            "tag": "pow5"
+        }
     if "-y**2*(4*x**3+1)" in r or "-(4*x**3+1)*y**2" in r:
-        return True, "(1/y^2)dy = -(4x^3+1)dx", "-1/y = -x^4 - x + C", "y = 1/(x^4 + x + C)", "invpoly"
+        return {
+            "sep": ["yp = -y^2(4x^3+1)", "dy/dx = -(4x^3+1)y^2", "(1/y^2)dy = -(4x^3+1)dx"],
+            "allm": ["∫y^-2 dy = ∫-(4x^3+1)dx", "-1/y = -x^4 - x + C", "1/y = x^4 + x + C", "y = 1/(x^4 + x + C)"],
+            "tag": "invpoly"
+        }
+    if "exp(x-y)" in r or "e**(x-y)" in r:
+        return {
+            "sep": ["yp = e^(x-y)", "dy/dx = e^x*e^-y", "e^y dy = e^x dx"],
+            "allm": ["∫e^y dy = ∫e^x dx", "e^y = e^x + C", "y = ln(e^x + C)"],
+            "tag": "expln"
+        }
+    return None
 
-    return False, "", "", "", None
 
-
-def los_med_begynnelse(tag, y0):
+def los_med_y0(tag, y0):
     if tag == "pow5":
         c = y0**5
-        return "y = (5x^2/2 + " + str(c) + ")^(1/5)"
+        return ["y(0)=" + str(y0), str(y0) + "^5 = C", "C=" + str(c), "y=(5x^2/2 + " + str(c) + ")^(1/5)"]
     if tag == "invpoly":
         if y0 == 0:
-            return "Ogiltigt begynnelsevillkor: y(0)=0 ger division med 0"
+            return ["Ogiltigt: y(0)=0 ger division med 0"]
         c = 1 / y0
-        return "y = 1/(x^4 + x + " + str(c) + ")"
-    return "För detta exempel: sätt in y(0) i den allmänna lösningen för att få C."
+        return ["y(0)=" + str(y0), "1/" + str(y0) + " = C", "C=" + str(c), "y=1/(x^4+x+" + str(c) + ")"]
+    if tag == "expln":
+        c = pow(2.718281828, y0) - 1
+        return ["e^y = e^x + C", "y(0)=" + str(y0) + " => e^" + str(y0) + " = 1 + C", "C=e^" + str(y0) + "-1", "y=ln(e^x + e^" + str(y0) + " - 1)"]
+    return ["Satt in y(0) i den allmanna losningen for att bestamma C."]
+
+
+def skriv_lista(rader):
+    i = 1
+    for rad in rader:
+        print(str(i) + ")", rad)
+        i += 1
 
 
 def main():
     print("Separerbara differentialekvationer")
-    print("Skriv y' som yp i programmet.")
+    print("Skriv y' som yp")
     print("1. Separera variabler")
-    print("2. Allmän lösning")
-    print("3. Lös med begynnelsevillkor y(0)=...")
+    print("2. Bestam allman losning")
+    print("3. Los med begynnelsevillkor y(0)=...")
 
-    val = input("Välj 1, 2 eller 3: ").strip()
+    val = input("Val 1/2/3: ").strip()
     vl = norm(input("VL = ").strip())
     hl = norm(input("HL = ").strip())
 
@@ -87,32 +96,32 @@ def main():
         print("Ej separabel: kunde inte isolera yp.")
         return
 
-    sep, steg1, steg2, steg3, tag = analys_separabel(rhs)
-    if not sep:
-        print("Ej separabel (eller ej igenkänd av programmets mallar).")
+    m = mall(rhs)
+    if m is None:
+        print("Ej separabel (eller ej igenkand mall).")
         print("Isolerad form: yp =", rhs)
         return
 
     if val == "1":
-        print("Separerad form:")
-        print(steg1)
+        print("Steg for separering:")
+        skriv_lista(m["sep"])
     elif val == "2":
-        print("Steg:")
-        print(steg1)
-        print("Allmän lösning:")
-        print(steg2)
-        print(steg3)
+        print("Steg for separering:")
+        skriv_lista(m["sep"])
+        print("Steg for losning:")
+        skriv_lista(m["allm"])
     elif val == "3":
         try:
             y0 = float(input("y(0) = ").strip().replace(",", "."))
         except Exception:
-            print("Fel i begynnelsevillkoret")
+            print("Fel i y(0)")
             return
-        print("Steg:")
-        print(steg1)
-        print(steg2)
-        print("Lösning som uppfyller y(0)=", y0)
-        print(los_med_begynnelse(tag, y0))
+        print("Steg for separering:")
+        skriv_lista(m["sep"])
+        print("Steg for allman losning:")
+        skriv_lista(m["allm"])
+        print("Steg med begynnelsevillkor:")
+        skriv_lista(los_med_y0(m["tag"], y0))
     else:
         print("Ogiltigt val")
 
